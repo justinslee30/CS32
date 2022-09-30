@@ -13,6 +13,7 @@
 #include <cctype>
 #include <utility>  // for swap
 #include <functional>
+#include <algorithm>
 using namespace std;
 #define MAX_HASH_TABLE_SIZE 50000
 
@@ -57,29 +58,23 @@ void DictionaryImpl::lookup(string letters, void callback(string)) const
 	if (letters.empty())
 		return;
 
-	string permutation = letters;
-	do
+	unsigned letters_hash = hashFunc(letters);
+	for (list<string>::const_iterator wordp = m_buckets[letters_hash].m_sub_bucket.begin(); wordp != m_buckets[letters_hash].m_sub_bucket.end(); wordp++)
 	{
-		unsigned wordp_hash = hashFunc(permutation);
-		if (m_buckets[wordp_hash].m_sub_bucket.size() == 0)
-		{}
-		else
-		{
-			for (list<string>::const_iterator wordp = m_buckets[wordp_hash].m_sub_bucket.begin(); wordp != m_buckets[wordp_hash].m_sub_bucket.end(); wordp++)
-			{
-				if (permutation == *wordp)
-					callback(*wordp);
-			}
-		}
-		generateNextPermutation(permutation);
-	} while (permutation != letters);
+		if (is_permutation(letters.begin(), letters.end(), wordp->begin(), wordp->end()))
+			callback(*wordp);
+	}
 }
 
 unsigned DictionaryImpl::hashFunc(string& word) const
 {
-	hash<string> str_hash;
-	unsigned hashValue = str_hash(word);
-	return hashValue % MAX_HASH_TABLE_SIZE;
+	//hash<string> str_hash;
+	//unsigned hashValue = str_hash(word);
+	//return hashValue % MAX_HASH_TABLE_SIZE;
+	unsigned total = 1;
+	for (size_t i = 0; i < word.length(); i++)
+		total = total * word[i];
+	return total % MAX_HASH_TABLE_SIZE;
 }
 /*
 void DictionaryImpl::insert(string word)
