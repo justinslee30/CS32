@@ -1,75 +1,53 @@
 #include "Sequence.h"
-
+#include <iostream>
+// Create an empty sequence (i.e., one with no items)
 Sequence::Sequence()
 {
-	m_size = 0;
+	m_size = 1;
+	m_array = new string[m_size];
 }
 
-bool Sequence::empty() const
+// Return true if the sequence is empty, otherwise false.
+bool Sequence::empty()
 {
-	if (m_size == 0)
-		return true;
-	else
-		return false;
+	bool result = true;
+	for (int i = 0; i < size(); i++)
+	{
+		if (m_array[i] != "")
+			result = false;
+	}
+	return result;
 }
 
-int Sequence::size() const
+// Return the number of items in the sequence.
+int Sequence::size()
 {
 	return m_size;
 }
 
-bool Sequence::insert(int pos, const ItemType& value)
+bool Sequence::insert(int pos, const std::string& value)
 {
-	if ((pos >= 0 || pos <= size()) && size() != DEFAULT_MAX_ITEMS)
+	if (pos >= 0 || pos <= size())
 	{
-			for (int i = size(); i > pos; i--)
-			{
-				m_array[i] = m_array[i - 1];
-			}
+		//if the insert is replacing an empty string and is not at the pos size (b/c in that case,would need to 
+		if (pos != size() && m_array[pos] == "")
+		{
 			m_array[pos] = value;
-			m_size++;
 			return true;
-	}
-	else
-	{
-		return false;
-	}
-
-}
-
-int Sequence::insert(const ItemType& value)
-{
-	//if the array is filled
-	if (size() == DEFAULT_MAX_ITEMS)
-	{
-		p = -1;
-		return p;
-	}
-	//if, it is not, find p
-	for (int i = 0; i < size(); i++)
-	{
-		if (value <= m_array[i])
-		{
-			p = i;
-			insert(p, value);
-			return p;
 		}
-	}
-	//if none of the values are greater than or equal to value, make p equal size 
-	p = size();
-	insert(p, value);
-	return p;
-}
-
-bool Sequence::erase(int pos)
-{
-	if (pos >= 0 || p < size())
-	{
-		for (int i = pos; i < size(); i++)
-		{
-			m_array[i] = m_array[i + 1];
-		}
-		m_size--;
+		//Allocate a new[] array and store it in a temporary pointer.
+		m_size = m_size + 1;
+		string * temp_array = new string[m_size];
+		//Copy over the previous values that you want to keep.
+		for (int i = 0; i < pos; i++)
+			temp_array[i] = m_array[i];
+		temp_array[pos] = value;
+		for (int j = pos + 1; j < size(); j++)
+			temp_array[j] = m_array[j - 1];
+		//Delete[] the old array.
+		delete[] m_array;
+		//Change the member variables, ptr and size to point to the new array and hold the new size.
+		m_array = temp_array;
 		return true;
 	}
 	else
@@ -78,23 +56,48 @@ bool Sequence::erase(int pos)
 	}
 }
 
-int Sequence::remove(const ItemType& value)
+int Sequence::insert(const std::string& value)
+{
+	return 0;
+}
+
+bool Sequence::erase(int pos)
+{
+	if (pos >= 0 && pos < size())
+	{
+		string * temp_Array = new string[m_size];
+		for (int i = 0; i < pos; i++)
+			temp_Array[i] = m_array[i];
+		for (int j = pos + 1; j < size(); j++)
+			temp_Array[j - 1] = m_array[j];
+		m_size--;
+		delete[] m_array;
+		m_array = temp_Array;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+int Sequence::remove(const std::string& value)
 {
 	int count = 0;
 	for (int i = 0; i < size(); i++)
 	{
-		if (m_array[i] == value)
+		if (value == m_array[i])
 		{
-			erase(i);
 			count++;
+			erase(i);
 		}
 	}
 	return count;
 }
 
-bool Sequence::get(int pos, ItemType& value) const
+bool Sequence::get(int pos, std::string& value)
 {
-	if (pos >= 0 || pos < size())
+	if (pos >= 0 && pos < size())
 	{
 		value = m_array[pos];
 		return true;
@@ -105,50 +108,32 @@ bool Sequence::get(int pos, ItemType& value) const
 	}
 }
 
-bool Sequence::set(int pos, const ItemType& value)
+bool Sequence::set(int pos, const std::string& value)
 {
-	if (pos >= 0 || pos < size())
-	{
+	if (pos >= 0 || p < size()) {
 		m_array[pos] = value;
 		return true;
 	}
 	else
-	{
 		return false;
-	}
 }
 
-int Sequence::find(const ItemType& value) 
+int Sequence::find(const std::string& value)
 {
 	p = -1;
 	for (int i = 0; i < size(); i++)
 	{
-		if (m_array[i] == value)
+		if (m_array[i] == value) 
 		{
 			p = i;
-			return p;
+			goto outside;
 		}
 	}
+outside:
 	return p;
 }
 
 void Sequence::swap(Sequence& other)
 {
-	//get the larger size
-	int size;
-	if (m_size > other.m_size)
-		size = m_size;
-	else
-		size = other.m_size;
-	//copy the array of this class into a temporary ItemType
-	ItemType z;
-	for (int i = 0; i < size; i++)
-	{
-		z = m_array[i];
-		m_array[i] = other.m_array[i];
-		other.m_array[i] = z;
-	}
-	int switch_size = m_size;
-	m_size = other.m_size;
-	other.m_size = switch_size;
+
 }
